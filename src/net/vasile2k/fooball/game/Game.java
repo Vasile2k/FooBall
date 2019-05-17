@@ -67,20 +67,15 @@ public class Game {
         glBindVertexArray(vertexArrayId);
 
         float[] coords = {
-                 0.0f,  0.0f, 0.0f,
-                -0.5f, -0.5f, 0.0F,
-                -0.5f,  0.5f, 0.0F,
-                 0.5f,  0.5f, 0.0F,
-                 0.5f, -0.5f, 0.0F,
+                -0.5f, -0.5f, 0.0F, -1.0F, -1.0F, 0.0F, 0.0F, 0.0F,
+                -0.5f,  0.5f, 0.0F, -1.0F,  1.0F, 0.0F, 0.0F, 0.0F,
+                 0.5f,  0.5f, 0.0F,  1.0F,  1.0F, 0.0F, 0.0F, 0.0F,
+                 0.5f, -0.5f, 0.0F,  1.0F, -1.0F, 0.0F, 0.0F, 0.0F,
         };
 
         int[] indices = {
-//                0, 1, 2,
-//                0, 2, 3,
-//                0, 4, 3,
-//                0, 4, 1,
-                1, 2, 3,
-                1, 3, 4,
+                0, 1, 2,
+                0, 2, 3,
         };
 
         int vertexBufferId = glGenBuffers();
@@ -88,7 +83,16 @@ public class Game {
         glBufferData(GL_ARRAY_BUFFER, coords, GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        FloatBuffer offsetBuffer = FloatBuffer.wrap(coords);
+        offsetBuffer.position(0);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 8 * Float.BYTES, offsetBuffer);
+        offsetBuffer.position(3);
+        glVertexAttribPointer(1, 2, GL_FLOAT, false, 8 * Float.BYTES, offsetBuffer);
+        offsetBuffer.position(5);
+        glVertexAttribPointer(2, 3, GL_FLOAT, false, 8 * Float.BYTES, offsetBuffer);
 
         int indexBufferId = glGenBuffers();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
@@ -126,6 +130,13 @@ public class Game {
                 e.printStackTrace();
             }
         }
+
+        t.unbind();
+        s.unbind();
+
+        glDisableVertexAttribArray(2);
+        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(0);
     }
 
 }
