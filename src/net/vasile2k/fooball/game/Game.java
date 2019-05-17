@@ -67,9 +67,20 @@ public class Game {
         glBindVertexArray(vertexArrayId);
 
         float[] coords = {
+                 0.0f,  0.0f, 0.0f,
                 -0.5f, -0.5f, 0.0F,
-                0.0f,  0.5f, 0.0F,
-                0.5f, -0.5f, 0.0F,
+                -0.5f,  0.5f, 0.0F,
+                 0.5f,  0.5f, 0.0F,
+                 0.5f, -0.5f, 0.0F,
+        };
+
+        int[] indices = {
+//                0, 1, 2,
+//                0, 2, 3,
+//                0, 4, 3,
+//                0, 4, 1,
+                1, 2, 3,
+                1, 3, 4,
         };
 
         int vertexBufferId = glGenBuffers();
@@ -79,7 +90,12 @@ public class Game {
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 
+        int indexBufferId = glGenBuffers();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
+
         glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferId);
 
         Shader s = new Shader("res/shader/red");
         s.bind();
@@ -99,7 +115,7 @@ public class Game {
 
             s.setUniform2f("pos", uniform[0], uniform[1]);
 
-            glDrawArrays(GL_TRIANGLES, 0, 4);
+            glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
 
             w.swapBuffers();
             w.pollEvents();
