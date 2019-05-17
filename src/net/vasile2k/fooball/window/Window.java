@@ -1,10 +1,5 @@
 package net.vasile2k.fooball.window;
 
-/**
- * Created by Vasile2k on 16.05.2019.
- *
- */
-
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
@@ -18,20 +13,39 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
+/**
+ * Created by Vasile2k on 16.05.2019.
+ *
+ */
+
 public class Window {
 
     private long window;
     private EventListener eventListener;
+
+    static {
+        // Init GLFW once
+        if(!glfwInit()){
+            throw new RuntimeException("Failed to initialize GLFW");
+        }
+        // Setup an error callback to stderr
+        GLFWErrorCallback.createPrint(System.err).set();
+
+        // And make sure to clear at exit
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            glfwTerminate();
+            GLFWErrorCallback callback = glfwSetErrorCallback(null);
+            if(callback != null){
+                callback.free();
+            }
+        }));
+    }
 
     public Window(){
         this(640, 480, "FooBall", false);
     }
 
     public Window(int width, int height, String title, boolean fullscreen){
-
-        if(!glfwInit()){
-            throw new RuntimeException("Failed to initialize GLFW");
-        }
 
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -97,9 +111,15 @@ public class Window {
 
     public void makeContextCurrent(){
         glfwMakeContextCurrent(this.window);
+        GL.createCapabilities();
     }
 
     public EventListener getEventListener() {
         return eventListener;
+    }
+
+    public void destroy(){
+        glfwFreeCallbacks(this.window);
+        glfwDestroyWindow(this.window);
     }
 }
