@@ -3,6 +3,7 @@ package net.vasile2k.fooball.game;
 import net.vasile2k.fooball.game.scene.Scene;
 import net.vasile2k.fooball.game.scene.SceneMenu;
 import net.vasile2k.fooball.render.*;
+import net.vasile2k.fooball.render.font.FontRenderer;
 import net.vasile2k.fooball.window.Window;
 
 /**
@@ -35,11 +36,11 @@ public class Game {
 
         Renderer.getInstance().setupOpenGL(window);
 
-//        window.setFullscreen(true);
-
         long currentTime = System.currentTimeMillis();
 
         this.currentScene.onLoad(window);
+
+        FontRenderer fontRenderer = FontRenderer.FontRendererBuilder.buildFontRenderer();
 
         while (!window.shouldClose()){
 
@@ -50,6 +51,8 @@ public class Game {
 
             Renderer.getInstance().clear();
             this.currentScene.onRender();
+
+            this.currentScene.onGuiRender(fontRenderer);
 
             if(!this.nextScene.equals("")){
                 this.currentScene.onUnload();
@@ -65,6 +68,7 @@ public class Game {
                     }
                 }
                 this.currentScene.onLoad(this.window);
+                this.nextScene = "";
             }
 
             if(this.currentScene != this.menuScene){
@@ -89,6 +93,15 @@ public class Game {
         }
 
         this.currentScene.onUnload();
+    }
+
+    public void toggleFullscreen(){
+        boolean fullscreen = this.window.getFullscreen();
+        this.window.setFullscreen(!fullscreen);
+        if(fullscreen){
+            this.window.setResolution(640, 480);
+        }
+        this.currentScene.onResize();
     }
 
     public void requestSceneChange(String className){

@@ -117,7 +117,7 @@ public class Shader {
     @Override
     public void finalize() throws Throwable{
         super.finalize();
-        glDeleteProgram(this.shaderId);
+//        glDeleteProgram(this.shaderId);
     }
 
     public void bind(){

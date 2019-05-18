@@ -64,7 +64,7 @@ public class Texture {
 
     @Override
     public void finalize() throws Throwable{
-        glDeleteTextures(this.textureId);
+//        glDeleteTextures(this.textureId);
     }
 
     public void bind(int slot){

@@ -1,5 +1,6 @@
 package net.vasile2k.fooball.game.scene;
 
+import net.vasile2k.fooball.render.font.FontRenderer;
 import net.vasile2k.fooball.window.Window;
 
 /**
@@ -28,6 +29,8 @@ public interface Scene {
     void onUnload();
     void onUpdate(long deltaTime); // In millis
     void onRender();
+    void onGuiRender(FontRenderer fontRenderer);
+    void onResize();
     boolean isDone();
 
 }

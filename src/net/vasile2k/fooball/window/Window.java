@@ -51,7 +51,8 @@ public class Window {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE); // Run in compat profile to support glVertex2f for FontRenderer
 
         window = glfwCreateWindow(width, height, title, fullscreen ? glfwGetPrimaryMonitor() : NULL, NULL);
 
@@ -64,6 +65,7 @@ public class Window {
 
     public void setResolution(int width, int height){
         glfwSetWindowSize(this.window, width, height);
+        glViewport(0, 0, width, height);
     }
 
     public void setFullscreen(boolean fullscreen){

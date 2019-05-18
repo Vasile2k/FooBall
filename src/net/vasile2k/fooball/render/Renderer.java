@@ -4,8 +4,6 @@ import net.vasile2k.fooball.window.Window;
 import org.lwjgl.opengl.GLUtil;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 
 /**
  * Created by Vasile2k on 18.05.2019.

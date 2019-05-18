@@ -5,11 +5,13 @@ import net.vasile2k.fooball.render.Model;
 import net.vasile2k.fooball.render.Renderer;
 import net.vasile2k.fooball.render.Shader;
 import net.vasile2k.fooball.render.Texture;
+import net.vasile2k.fooball.render.font.FontRenderer;
 import net.vasile2k.fooball.window.EventHandler;
 import net.vasile2k.fooball.window.Window;
 import org.joml.Matrix4f;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL44.*;
 
 /**
  * Created by Vasile2k on 18.05.2019.
@@ -42,6 +44,8 @@ public class SceneMenu implements Scene {
     private boolean continueActive;
     private boolean exitActive;
 
+    private boolean toggleFullscreenActive;
+
     public SceneMenu(){
         this.eventHandler = new EventHandler() {
             @Override
@@ -52,13 +56,15 @@ public class SceneMenu implements Scene {
             @Override
             public void onMouseButton(int button, int action, int modifiers) {
                 // If click
-                if(button == GLFW_MOUSE_BUTTON_1){
+                if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS){
                     if(newGameActive){
                         Game.getInstance().requestSceneChange("SceneGame");
                     }else if(continueActive){
-
+                        // TODO
                     }else if(exitActive){
                         System.exit(0);
+                    }else if(toggleFullscreenActive){
+                        Game.getInstance().toggleFullscreen();
                     }
                 }
             }
@@ -72,6 +78,7 @@ public class SceneMenu implements Scene {
                 newGameActive = false;
                 continueActive = false;
                 exitActive = false;
+                toggleFullscreenActive = false;
 
                 if(yNorm > 0.5){
                     if(yNorm < 0.61){
@@ -87,6 +94,10 @@ public class SceneMenu implements Scene {
                             exitActive = true;
                         }
                     }
+                }
+
+                if(xNorm > 0.6F && xNorm < 0.86F && yNorm > 0.86F && yNorm < 0.9F){
+                    toggleFullscreenActive = true;
                 }
             }
 
@@ -123,6 +134,7 @@ public class SceneMenu implements Scene {
 
         gameViewProjectionMatrix = new Matrix4f().setPerspective(1.0F, this.window.getAspectRatio(), 0.01F, 100.0F);
         gameModelMatrix = new Matrix4f();
+        this.onResize();
     }
 
     @Override
@@ -143,6 +155,8 @@ public class SceneMenu implements Scene {
     public void onRender() {
         Renderer.getInstance().clearColor(0.1F, 0.1F, 0.1F, 1.0F);
 
+        this.textShader.bind();
+
         this.textShader.setUniformMat4f("viewProjMatrix", this.gameViewProjectionMatrix);
         this.textShader.setUniformMat4f("modelMatrix", this.gameModelMatrix);
 
@@ -154,18 +168,35 @@ public class SceneMenu implements Scene {
         Matrix4f scaledMatrix;
 
         this.menuButtonsTexture.bind(0);
+
         this.textShader.setUniform1f("active", newGameActive ? 1.0F : 0.0F);
         scaledMatrix = new Matrix4f(newModelMatrix).scale(1.1F, 1.1F, 1.1F);
         this.textShader.setUniformMat4f("modelMatrix", newGameActive ? scaledMatrix : this.newModelMatrix);
         this.newGameModel.render();
+
         this.textShader.setUniform1f("active", continueActive ? 1.0F : 0.0F);
         scaledMatrix = new Matrix4f(continueModelMatrix).scale(1.1F, 1.1F, 1.1F);
         this.textShader.setUniformMat4f("modelMatrix", continueActive ? scaledMatrix : this.continueModelMatrix);
         this.continueModel.render();
+
         this.textShader.setUniform1f("active", exitActive ? 1.0F : 0.0F);
         scaledMatrix = new Matrix4f(exitModelMatrix).scale(1.1F, 1.1F, 1.1F);
         this.textShader.setUniformMat4f("modelMatrix", exitActive ? scaledMatrix : this.exitModelMatrix);
         this.exitModel.render();
+
+    }
+
+    @Override
+    public void onGuiRender(FontRenderer fontRenderer) {
+        fontRenderer.renderText("Made by Vasile2k.", 0.1f, 0.05F, 0.0F, -0.95F, 0.25F, 0.63F, 0.95F);
+
+        fontRenderer.renderText("Toggle fullscreen", 0.07F, 0.03F, 0.2F, -0.8F, toggleFullscreenActive ? 0.8F : 0.2F, toggleFullscreenActive ? 0.25F : 0.8F, 0.3F);
+    }
+
+    @Override
+    public void onResize() {
+        // Update projection matrix to new aspect ratio
+        gameViewProjectionMatrix = new Matrix4f().setPerspective(1.0F, this.window.getAspectRatio(), 0.01F, 100.0F);
     }
 
     @Override
