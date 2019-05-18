@@ -114,6 +114,13 @@ public class Window {
         GL.createCapabilities();
     }
 
+    public float getAspectRatio(){
+        int width[] = new int[1];
+        int height[] = new int[1];
+        glfwGetWindowSize(this.window, width, height);
+        return (float)width[0]/(float)height[0];
+    }
+
     public EventListener getEventListener() {
         return eventListener;
     }

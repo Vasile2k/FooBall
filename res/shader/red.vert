@@ -5,8 +5,8 @@ layout(location = 1) in vec2 textureCoordinate;
 layout(location = 2) in vec3 normal;
 
 uniform vec2 pos;
-uniform mat4 viewProj;
-uniform mat4 model;
+uniform mat4 viewProjMatrix;
+uniform mat4 modelMatrix;
 
 out vec2 texCoord;
 
@@ -15,5 +15,5 @@ void main(){
 	// TODO: maybe do it better in Texture class
 	texCoord = vec2(textureCoordinate.x, 1.0 - textureCoordinate.y);
 	vec4 position4 = vec4(position, 1.0);
-	gl_Position = viewProj * model * position4;
+	gl_Position = viewProjMatrix * modelMatrix * position4;
 }

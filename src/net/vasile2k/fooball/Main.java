@@ -10,8 +10,8 @@ import net.vasile2k.fooball.game.Game;
 public class Main {
 
     public static void main(String... args){
-        Game game = new Game();
-        game.run();
+        Game game = Game.getInstance();
+        game.start();
     }
 
 }

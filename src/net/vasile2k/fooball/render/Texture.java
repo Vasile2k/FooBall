@@ -42,17 +42,12 @@ public class Texture {
         int[] pixels = new int[this.width * this.heigth];
         image.getRGB(0, 0, this.width, this.heigth, pixels, 0, this.width);
 
-        for(int i = 0; i < this.width; ++i){
-            for(int j = 0; j < this.heigth; ++j){
-
-            }
-        }
-
         ByteBuffer imageBuffer = BufferUtils.createByteBuffer(this.width * this.heigth * 4 /* bytes per pixel */);
         imageBuffer.asIntBuffer().put(pixels);
 
         // I guess it's required for OpenGL Image Loading
         imageBuffer.flip();
+        // But this shit does not seem to work so a temporary fix is done in shader...
 
         this.textureId = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, this.textureId);
