@@ -5,12 +5,15 @@ layout(location = 1) in vec2 textureCoordinate;
 layout(location = 2) in vec3 normal;
 
 uniform vec2 pos;
+uniform mat4 viewProj;
+uniform mat4 model;
 
 out vec2 texCoord;
 
 void main(){
-	texCoord = textureCoordinate;
-	gl_Position.xy = position.xy + pos;
-	gl_Position.z = position.z;
-	gl_Position.w = 1.0;
+	// Texture is not mapped correctly in OpenGL system so fix it there
+	// TODO: maybe do it better in Texture class
+	texCoord = vec2(textureCoordinate.x, 1.0 - textureCoordinate.y);
+	vec4 position4 = vec4(position, 1.0);
+	gl_Position = viewProj * model * position4;
 }

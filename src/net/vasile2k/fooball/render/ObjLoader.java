@@ -17,10 +17,10 @@ import java.util.ArrayList;
 
 public class ObjLoader {
 
-    private static final String VERTEX = "v";
-    private static final String TEXTURE = "vt";
-    private static final String NORMAL = "vn";
-    private static final String FACE = "f";
+    private static final String VERTEX = "v ";
+    private static final String TEXTURE = "vt ";
+    private static final String NORMAL = "vn ";
+    private static final String FACE = "f ";
 
     private static final int VERTICES_PER_FACE = 3;
 
