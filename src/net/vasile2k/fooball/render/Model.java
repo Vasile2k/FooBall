@@ -19,7 +19,7 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 public class Model {
 
     private String objPath;
-    private int vetexArrayId;
+    private int vertexArrayId;
     private int vertexBufferId;
     private int indexBufferId;
 
@@ -42,8 +42,8 @@ public class Model {
 
     private Model(String objPath){
         this.objPath = objPath;
-        int vertexArrayId = glGenVertexArrays();
-        glBindVertexArray(vertexArrayId);
+        this.vertexArrayId = glGenVertexArrays();
+        glBindVertexArray(this.vertexArrayId);
 
         ArrayList<ObjLoader.Vertex> vertices = new ArrayList<>();
         ArrayList<Integer> vertIndices = new ArrayList<>();
@@ -70,7 +70,7 @@ public class Model {
             this.objCoords[_i++] = v.zNrm;
         }
 
-        this. vertexBufferId = glGenBuffers();
+        this.vertexBufferId = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
         glBufferData(GL_ARRAY_BUFFER, this.objCoords, GL_STATIC_DRAW);
 
@@ -94,6 +94,7 @@ public class Model {
     }
 
     public void render(){
+        glBindVertexArray(this.vertexArrayId);
         glBindBuffer(GL_ARRAY_BUFFER, this.vertexBufferId);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.indexBufferId);
         glDrawElements(GL_TRIANGLES, this.objIndices.length, GL_UNSIGNED_INT, 0);

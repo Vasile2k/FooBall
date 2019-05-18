@@ -3,23 +3,7 @@ package net.vasile2k.fooball.game;
 import net.vasile2k.fooball.game.scene.Scene;
 import net.vasile2k.fooball.game.scene.SceneMenu;
 import net.vasile2k.fooball.render.*;
-import net.vasile2k.fooball.window.EventHandler;
 import net.vasile2k.fooball.window.Window;
-import org.joml.Matrix4f;
-import org.lwjgl.*;
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
-import org.lwjgl.system.*;
-
-import java.io.IOException;
-import java.nio.*;
-import java.util.ArrayList;
-
-import static org.lwjgl.glfw.Callbacks.*;
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL33.*;
-import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.MemoryUtil.*;
 
 /**
  * Created by Vasile2k on 16.05.2019.
@@ -33,7 +17,7 @@ public class Game {
     private SceneMenu menuScene;
     private Scene currentScene;
 
-    private Window w;
+    private Window window;
 
     private String nextScene = "";
 
@@ -47,15 +31,17 @@ public class Game {
     }
 
     public void start(){
-        w = new Window();
+        window = new Window();
 
-        Renderer.getInstance().setupOpenGL(w);
+        Renderer.getInstance().setupOpenGL(window);
+
+//        window.setFullscreen(true);
 
         long currentTime = System.currentTimeMillis();
 
-        this.currentScene.onLoad(w);
+        this.currentScene.onLoad(window);
 
-        while (!w.shouldClose()){
+        while (!window.shouldClose()){
 
             Renderer.getInstance().clear();
 
@@ -78,7 +64,7 @@ public class Game {
                         e.printStackTrace();
                     }
                 }
-                this.currentScene.onLoad(this.w);
+                this.currentScene.onLoad(this.window);
             }
 
             if(this.currentScene != this.menuScene){
@@ -92,8 +78,8 @@ public class Game {
                 }
             }
 
-            w.swapBuffers();
-            w.pollEvents();
+            window.swapBuffers();
+            window.pollEvents();
 
             try {
                 Thread.sleep(16);

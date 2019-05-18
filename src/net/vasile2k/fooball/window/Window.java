@@ -1,5 +1,6 @@
 package net.vasile2k.fooball.window;
 
+import javafx.util.Pair;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
@@ -79,6 +80,16 @@ public class Window {
                 glfwSetWindowMonitor(this.window, NULL, 100, 100, width[0], height[0], GLFW_DONT_CARE);
             }
         }
+        int[] size = this.getWidthAndHeight();
+        glViewport(0, 0, size[0], size[1]);
+    }
+
+    public int[] getWidthAndHeight(){
+        int width[] = new int[1];
+        int height[] = new int[1];
+        glfwGetWindowSize(this.window, width, height);
+        int[] result = {width[0], height[0]};
+        return result;
     }
 
     public int getWidth(){
