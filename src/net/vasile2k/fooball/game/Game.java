@@ -48,6 +48,7 @@ public class Game {
 
             long now = System.currentTimeMillis();
             this.currentScene.onUpdate(now - currentTime);
+            currentTime = now;
 
             Renderer.getInstance().clear();
             this.currentScene.onRender();

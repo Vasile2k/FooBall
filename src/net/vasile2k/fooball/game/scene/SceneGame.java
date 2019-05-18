@@ -10,6 +10,8 @@ import net.vasile2k.fooball.window.EventHandler;
 import net.vasile2k.fooball.window.Window;
 import org.joml.Matrix4f;
 
+import java.util.ArrayList;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 /**
@@ -38,31 +40,34 @@ public class SceneGame implements Scene {
 
     private boolean initialized = false;
 
+    private ArrayList<Integer> keysPressed;
+
     public SceneGame(){
         this.eventHandler = new EventHandler() {
             @Override
             public void onKey(int key, int scancode, int action, int modifiers) {
-//                if(action == GLFW_PRESS){
+                if(action == GLFW_PRESS){
                     switch (key){
                         case GLFW_KEY_W:
-                            playerModelMatrix.translate(0.0F, 0.0F, 0.1F);
-                            break;
                         case GLFW_KEY_S:
-                            playerModelMatrix.translate(0.0F, 0.0F, -0.1F);
-                            break;
                         case GLFW_KEY_A:
-//                            playerModelMatrix.translate(0.1F, 0.0F, 0.0F);
-                            playerModelMatrix.rotate(0.1F, 0.0F, 1.0F, 0.0F);
-                            break;
                         case GLFW_KEY_D:
-//                            playerModelMatrix.translate(0.1F, 0.0F, 0.0F);
-                            playerModelMatrix.rotate(-0.1F, 0.0F, 1.0F, 0.0F);
+                            keysPressed.add(key);
                             break;
                         case GLFW_KEY_ESCAPE:
                             Game.getInstance().requestSceneChange("SceneMenu");
                             break;
                     }
-//                }
+                }else if(action == GLFW_RELEASE){
+                    switch (key){
+                        case GLFW_KEY_W:
+                        case GLFW_KEY_S:
+                        case GLFW_KEY_A:
+                        case GLFW_KEY_D:
+                            keysPressed.remove(new Integer(key));
+                            break;
+                    }
+                }
             }
 
             @Override
@@ -80,6 +85,7 @@ public class SceneGame implements Scene {
 
             }
         };
+        this.keysPressed = new ArrayList<>();
     }
 
     @Override
@@ -116,6 +122,20 @@ public class SceneGame implements Scene {
     @Override
     public void onUpdate(long deltaTime) {
 
+        float speed = 2.0F/deltaTime;
+
+        if(this.keysPressed.contains(GLFW_KEY_W)) {
+            playerModelMatrix.translate(0.0F, 0.0F, speed);
+        }
+        if(this.keysPressed.contains(GLFW_KEY_S)) {
+            playerModelMatrix.translate(0.0F, 0.0F, -speed);
+        }
+        if(this.keysPressed.contains(GLFW_KEY_A)) {
+            playerModelMatrix.rotate(speed, 0.0F, 1.0F, 0.0F);
+        }
+        if(this.keysPressed.contains(GLFW_KEY_D)) {
+            playerModelMatrix.rotate(-speed, 0.0F, 1.0F, 0.0F);
+        }
     }
 
     @Override
