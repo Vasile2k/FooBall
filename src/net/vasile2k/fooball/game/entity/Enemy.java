@@ -28,6 +28,8 @@ public class Enemy extends Entity {
     private float maxHealth;
     private float health;
 
+    private long firingInterval;
+
     private SceneGame sceneGame;
 
     private long timeSinceLastBullet = 0;
@@ -39,21 +41,22 @@ public class Enemy extends Entity {
         shadowTexture = new Texture("res/texture/shadow.png");
     }
 
-    public Enemy(SceneGame sceneGame, float x, float y, float health){
+    public Enemy(SceneGame sceneGame, float x, float y, float health, long firingInterval){
         this.x = x;
         this.y = y;
         this.angle = 0.0F;
         this.sceneGame = sceneGame;
         this.maxHealth = health;
         this.health = health;
+        this.firingInterval = firingInterval;
     }
 
     @Override
     public void onUpdate(long deltaTime) {
         timeSinceLastBullet += deltaTime;
-        if(timeSinceLastBullet > 1000){
+        if(timeSinceLastBullet > firingInterval){
             this.fire();
-            timeSinceLastBullet = 0;
+            timeSinceLastBullet -= firingInterval;
         }
         this.angle += 0.01F;
     }

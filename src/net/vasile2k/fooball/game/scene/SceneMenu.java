@@ -1,5 +1,6 @@
 package net.vasile2k.fooball.game.scene;
 
+import net.vasile2k.fooball.database.DatabaseManager;
 import net.vasile2k.fooball.game.Game;
 import net.vasile2k.fooball.render.Model;
 import net.vasile2k.fooball.render.Renderer;
@@ -193,6 +194,20 @@ public class SceneMenu implements Scene {
         fontRenderer.renderText("Made by Vasile2k.", 0.1f, 0.05F, 0.0F, -0.95F, 0.25F, 0.63F, 0.95F);
 
         fontRenderer.renderText("Toggle fullscreen", 0.07F, 0.03F, 0.2F, -0.8F, toggleFullscreenActive ? 0.8F : 0.2F, toggleFullscreenActive ? 0.25F : 0.8F, 0.3F);
+
+        int[] highScores = DatabaseManager.getHighscores();
+
+        fontRenderer.renderText("Highscores:", 0.08F, 0.04F, 0.2F, 0.0F, 1.0F, 1.0F, 1.0F);
+        if(highScores.length == 0){
+            fontRenderer.renderText("-", 0.08F, 0.04F, 0.2F, -0.1F, 1.0F, 1.0F, 1.0F);
+        }else{
+            float yCoordRow = -0.1F;
+            for (int highScore : highScores) {
+                fontRenderer.renderText("" + highScore /* ez toString() */, 0.08F, 0.04F, 0.3F, yCoordRow, 1.0F, 1.0F, 1.0F);
+                yCoordRow -= 0.1F;
+            }
+        }
+
     }
 
     @Override

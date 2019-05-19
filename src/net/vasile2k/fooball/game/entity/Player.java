@@ -5,6 +5,7 @@ import net.vasile2k.fooball.game.scene.SceneGame;
 import net.vasile2k.fooball.render.Model;
 import net.vasile2k.fooball.render.Shader;
 import net.vasile2k.fooball.render.Texture;
+import net.vasile2k.fooball.render.font.FontRenderer;
 import net.vasile2k.fooball.window.EventHandler;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -37,8 +38,10 @@ public class Player extends Entity implements EventHandler {
     private float angle;
 
     private SceneGame scene;
+    protected float maxHealth;
+    protected float health;
 
-    public Player(SceneGame sceneGame){
+    public Player(SceneGame sceneGame, float health){
         this.model = Model.ModelFactory.createNewModelFromFile("res/model/suzanne2.obj");
         this.shadow = Model.ModelFactory.createNewModelFromFile("res/model/shadow.obj");
         this.playerTexture = new Texture("res/texture/monkey_baked.png");
@@ -48,6 +51,8 @@ public class Player extends Entity implements EventHandler {
         this.y = 0.0F;
         this.angle = 0.0F;
         this.scene = sceneGame;
+        this.maxHealth = health;
+        this.health = health;
     }
 
     @Override
@@ -81,7 +86,7 @@ public class Player extends Entity implements EventHandler {
     @Override
     public void render(Shader shader) {
 
-//        shader.setUniform3f("objectColor", 1.0F, 0.3F, 0.3F);
+        shader.setUniform3f("objectColor", this.health/this.maxHealth, this.health/this.maxHealth, this.health/this.maxHealth);
 
         shader.setUniformMat4f("modelMatrix", new Matrix4f().translate(this.x, 0, this.y).rotate(this.angle, 0.0F, 1.0F, 0.0F));
         this.playerTexture.bind(0);
@@ -89,6 +94,10 @@ public class Player extends Entity implements EventHandler {
 
         this.shadowTexture.bind(0);
         this.shadow.render();
+    }
+
+    public void renderHealth(FontRenderer fontRenderer){
+        fontRenderer.renderText("Health: " + (int)this.health, 0.1F, 0.06F, 0.1F, 0.85F, 1.0F, 0.0F, 0.0F);
     }
 
     @Override
@@ -133,7 +142,7 @@ public class Player extends Entity implements EventHandler {
     }
 
     public void damage(){
-
+        this.health -= 1.0F;
     }
 
     public float getX() {
@@ -146,7 +155,7 @@ public class Player extends Entity implements EventHandler {
 
     @Override
     public boolean isDead() {
-        return false;
+        return this.health <= 0.0F;
     }
 
     private void fire(){

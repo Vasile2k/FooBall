@@ -1,5 +1,6 @@
 package net.vasile2k.fooball.game;
 
+import net.vasile2k.fooball.database.DatabaseManager;
 import net.vasile2k.fooball.game.scene.Scene;
 import net.vasile2k.fooball.game.scene.SceneMenu;
 import net.vasile2k.fooball.render.*;
@@ -37,6 +38,8 @@ public class Game {
         Renderer.getInstance().setupOpenGL(window);
 
         long currentTime = System.currentTimeMillis();
+
+        this.window.setFullscreen(DatabaseManager.getSettingsFullscreen());
 
         this.currentScene.onLoad(window);
 
@@ -103,6 +106,7 @@ public class Game {
             this.window.setResolution(640, 480);
         }
         this.currentScene.onResize();
+        DatabaseManager.setSettingsFullscreen(!fullscreen);
     }
 
     public void requestSceneChange(String className){

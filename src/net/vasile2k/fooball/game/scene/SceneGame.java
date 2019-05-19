@@ -1,5 +1,6 @@
 package net.vasile2k.fooball.game.scene;
 
+import net.vasile2k.fooball.database.DatabaseManager;
 import net.vasile2k.fooball.game.Game;
 import net.vasile2k.fooball.game.entity.*;
 import net.vasile2k.fooball.render.Model;
@@ -47,30 +48,43 @@ public class SceneGame implements Scene {
     private boolean saveActive = false;
     private boolean exitActive = false;
 
+    private int level = 1;
+
+    private int score = 0;
+
     public SceneGame(){
         this.eventHandler = new EventHandler() {
             @Override
             public void onKey(int key, int scancode, int action, int modifiers) {
-                if(action == GLFW_PRESS && key == GLFW_KEY_ESCAPE){
-                    paused = !paused;
-                }
-                if(!paused){
-                    player.onKey(key, scancode, action, modifiers);
+                if(!player.isDead()){
+                    if(action == GLFW_PRESS && key == GLFW_KEY_ESCAPE){
+                        paused = !paused;
+                    }
+                    if(!paused){
+                        player.onKey(key, scancode, action, modifiers);
+                    }
+                }else{
+                    if(action == GLFW_PRESS && key == GLFW_KEY_ESCAPE){
+                        DatabaseManager.saveScore(score);
+                        Game.getInstance().requestSceneChange("SceneMenu");
+                    }
                 }
             }
 
             @Override
             public void onMouseButton(int button, int action, int modifiers) {
-                if(!paused){
-                    player.onMouseButton(button, action, modifiers);
-                }else{
-                    if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS){
-                        if(resumeActive){
-                            paused = false;
-                        }else if(saveActive){
-                            //TODO
-                        }else if(exitActive){
-                            Game.getInstance().requestSceneChange("SceneMenu");
+                if(!player.isDead()){
+                    if(!paused){
+                        player.onMouseButton(button, action, modifiers);
+                    }else{
+                        if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS){
+                            if(resumeActive){
+                                paused = false;
+                            }else if(saveActive){
+                                //TODO
+                            }else if(exitActive){
+                                Game.getInstance().requestSceneChange("SceneMenu");
+                            }
                         }
                     }
                 }
@@ -78,25 +92,27 @@ public class SceneGame implements Scene {
 
             @Override
             public void onCursorPosition(double xPos, double yPos) {
-                if(!paused){
-                    player.onCursorPosition(xPos, yPos);
-                }else{
-                    int[] windowSize = window.getWidthAndHeight();
-                    double xNorm = xPos/windowSize[0];
-                    double yNorm = yPos/windowSize[1];
+                if(!player.isDead()){
+                    if(!paused){
+                        player.onCursorPosition(xPos, yPos);
+                    }else{
+                        int[] windowSize = window.getWidthAndHeight();
+                        double xNorm = xPos/windowSize[0];
+                        double yNorm = yPos/windowSize[1];
 
-                    resumeActive = false;
-                    saveActive = false;
-                    exitActive = false;
+                        resumeActive = false;
+                        saveActive = false;
+                        exitActive = false;
 
-                    if(xNorm > 0.02 && xNorm < 0.21){
-                        if(yNorm > 0.7F){
-                            if(yNorm < 0.76F){
-                                resumeActive = true;
-                            }else if(yNorm < 0.84F){
-                                saveActive = true;
-                            }else if(yNorm < 0.92F){
-                                exitActive = true;
+                        if(xNorm > 0.02 && xNorm < 0.21){
+                            if(yNorm > 0.7F){
+                                if(yNorm < 0.76F){
+                                    resumeActive = true;
+                                }else if(yNorm < 0.84F){
+                                    saveActive = true;
+                                }else if(yNorm < 0.92F){
+                                    exitActive = true;
+                                }
                             }
                         }
                     }
@@ -105,8 +121,10 @@ public class SceneGame implements Scene {
 
             @Override
             public void onScroll(double xPos, double yPos) {
-                if(!paused){
-                    player.onScroll(xPos, yPos);
+                if(!player.isDead()){
+                    if(!paused){
+                        player.onScroll(xPos, yPos);
+                    }
                 }
             }
         };
@@ -124,7 +142,7 @@ public class SceneGame implements Scene {
 
             this.shader = new Shader("res/shader/colored");
 
-            this.player = new Player(this);
+            this.player = new Player(this, 20.0F);
             this.enemies = new ArrayList<>();
             this.generateEnemies();
             this.bullets = new ArrayList<>();
@@ -144,31 +162,38 @@ public class SceneGame implements Scene {
 
     @Override
     public void onUpdate(long deltaTime) {
-        if(!paused){
-            this.player.onUpdate(deltaTime);
-            for(Enemy e: this.enemies){
-                e.onUpdate(deltaTime);
-            }
-            for(Bullet b: this.bullets){
-                b.onUpdate(deltaTime);
-                if(b.isFiredByPlayer()){
-                    for(Enemy e: this.enemies){
-                        float distToBullet = CollisionHelper.dist2(b.getX(), b.getY(), e.getX(), e.getY());
-                        if(distToBullet < 1.0F){
-                            e.damage();
+        if(!player.isDead()){
+            if(!paused){
+                this.player.onUpdate(deltaTime);
+                for(Enemy e: this.enemies){
+                    e.onUpdate(deltaTime);
+                }
+                for(Bullet b: this.bullets){
+                    b.onUpdate(deltaTime);
+                    if(b.isFiredByPlayer()){
+                        for(Enemy e: this.enemies){
+                            float distToBullet = CollisionHelper.dist2(b.getX(), b.getY(), e.getX(), e.getY());
+                            if(distToBullet < 1.0F){
+                                e.damage();
+                                b.die();
+                                ++score;
+                            }
+                        }
+                    }else{
+                        float distToPlayer = CollisionHelper.dist2(b.getX(), b.getY(), this.player.getX(), this.player.getY());
+                        if(distToPlayer < 1.0F){
+                            player.damage();
                             b.die();
                         }
                     }
-                }else{
-                    float distToPlayer = CollisionHelper.dist2(b.getX(), b.getY(), this.player.getX(), this.player.getY());
-                    if(distToPlayer < 1.0F){
-                        player.damage();
-                        b.die();
-                    }
+                }
+                this.enemies.removeIf(Enemy::isDead);
+                this.bullets.removeIf(Bullet::isDead);
+                if(this.enemies.size() == 0){
+                    ++level;
+                    this.generateEnemies();
                 }
             }
-            this.enemies.removeIf(Enemy::isDead);
-            this.bullets.removeIf(Bullet::isDead);
         }
     }
 
@@ -220,33 +245,50 @@ public class SceneGame implements Scene {
     }
 
     private void generateEnemies(){
-        this.enemies.add(new Enemy(this, 10, -6, 20.0F));
-//        this.enemies.add(new Enemy(this, (float)Math.random() * 10 - 5, (float)Math.random() * 10 - 5, 20.0F));
+        int enemiesToGenerate = level + 1;
+        generate:
+        while(enemiesToGenerate > 0){
+            float x = (float)Math.random() * 20.0F - 10.0F;
+            float y = (float)Math.random() * 12.0F - 6.0F;
+            for(Enemy e: this.enemies){
+                float dist2 = CollisionHelper.dist2(x, y, e.getX(), e.getY());
+                if(dist2 < 3.0F){
+                    continue generate;
+                }
+            }
+            this.enemies.add(new Enemy(this, x, y, 8.0F + 2.0F * this.level, 1000 - 100 * this.level));
+            --enemiesToGenerate;
+        }
     }
 
     @Override
     public void onRender() {
 
-        if(paused){
-            Renderer.getInstance().clearColor(0.05F, 0.05F, 0.05F, 1.0F);
+        if(!player.isDead()){
+            if(paused){
+                Renderer.getInstance().clearColor(0.05F, 0.05F, 0.05F, 1.0F);
+            }else{
+                this.shader.bind();
+
+                this.shader.setUniform3f("objectColor", 1.0F, 1.0F, 1.0F);
+                this.shader.setUniformMat4f("viewProjMatrix", this.camera);
+
+                this.shader.setUniformMat4f("modelMatrix", this.arenaModelMatrix);
+                this.arenaTexture.bind(0);
+                this.arena.render();
+
+                this.player.render(this.shader);
+                for(Enemy e: this.enemies){
+                    e.render(this.shader);
+                }
+                for(Bullet b: this.bullets){
+                    b.render(this.shader);
+                }
+            }
         }else{
-            this.shader.bind();
-
-            this.shader.setUniform3f("objectColor", 1.0F, 1.0F, 1.0F);
-            this.shader.setUniformMat4f("viewProjMatrix", this.camera);
-
-            this.shader.setUniformMat4f("modelMatrix", this.arenaModelMatrix);
-            this.arenaTexture.bind(0);
-            this.arena.render();
-
-            this.player.render(this.shader);
-            for(Enemy e: this.enemies){
-                e.render(this.shader);
-            }
-            for(Bullet b: this.bullets){
-                b.render(this.shader);
-            }
+            Renderer.getInstance().clearColor(0.05F, 0.05F, 0.05F, 1.0F);
         }
+
     }
 
     @Override
@@ -255,6 +297,14 @@ public class SceneGame implements Scene {
             fontRenderer.renderText("resume", 0.1F, 0.06F, -0.95F, -0.5F, resumeActive ? 0.8F : 0.2F, resumeActive ? 0.25F : 0.8F, 0.3F);
             fontRenderer.renderText("save", 0.1F, 0.06F, -0.95F, -0.65F, saveActive ? 0.8F : 0.2F, saveActive ? 0.25F : 0.8F, 0.3F);
             fontRenderer.renderText("exit", 0.1F, 0.06F, -0.95F, -0.8F, exitActive ? 0.8F : 0.2F, exitActive ? 0.25F : 0.8F, 0.3F);
+        }else{
+            fontRenderer.renderText("Enemies left: " + this.enemies.size() + "     Level: " + this.level, 0.1F, 0.06F, -0.95F, -0.85F, 1.0F, 1.0F, 1.0F);
+            fontRenderer.renderText("Score: " + this.score, 0.1F, 0.06F, -0.95F, 0.85F, 1.0F, 1.0F, 1.0F);
+            this.player.renderHealth(fontRenderer);
+            if(this.player.isDead()){
+                fontRenderer.renderText("_ded", 0.3F, 0.2F, -0.4F, -0.15F, 1.0F, 0.0F, 0.0F);
+                fontRenderer.renderText("Press ESCAPE to return to menu", 0.09F, 0.05F, -0.7F, -0.4F, 0.2F, 0.8F, 0.3F);
+            }
         }
     }
 
