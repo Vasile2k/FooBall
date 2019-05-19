@@ -61,7 +61,11 @@ public class SceneMenu implements Scene {
                     if(newGameActive){
                         Game.getInstance().requestSceneChange("SceneGame");
                     }else if(continueActive){
-                        // TODO
+                        SceneGame sceneGame = DatabaseManager.loadState();
+                        if(sceneGame != null){
+                            sceneGame.build();
+                            Game.getInstance().requestSceneChange(sceneGame);
+                        }
                     }else if(exitActive){
                         System.exit(0);
                     }else if(toggleFullscreenActive){
@@ -220,4 +224,5 @@ public class SceneMenu implements Scene {
     public boolean isDone() {
         return false;
     }
+
 }

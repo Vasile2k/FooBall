@@ -14,6 +14,12 @@ import org.joml.Vector3f;
 
 public class Bullet extends Entity {
 
+    /**
+     * Required for serialization to match
+     * A unique magic number
+     */
+    private static final long serialVersionUID = 0xCAL;
+
     private static Model model;
     private static Texture modelTexture;
 
@@ -24,7 +30,7 @@ public class Bullet extends Entity {
 
     private SceneGame sceneGame;
 
-    boolean firedByPlayer;
+    private boolean firedByPlayer;
 
     private boolean dead = false;
 

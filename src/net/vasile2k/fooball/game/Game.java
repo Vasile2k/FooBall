@@ -21,7 +21,8 @@ public class Game {
 
     private Window window;
 
-    private String nextScene = "";
+    private String nextSceneClassName = "";
+    private Scene nextScene = null;
 
     static {
         Game.instance = new Game();
@@ -58,21 +59,26 @@ public class Game {
 
             this.currentScene.onGuiRender(fontRenderer);
 
-            if(!this.nextScene.equals("")){
+            if(!this.nextSceneClassName.equals("")){
                 this.currentScene.onUnload();
 
-                if(this.nextScene.equals("SceneMenu")){
+                if(this.nextSceneClassName.equals("SceneMenu")){
                     this.currentScene = this.menuScene;
                 }else{
                     try {
-                        Class sceneClass = Class.forName("net.vasile2k.fooball.game.scene." + this.nextScene);
+                        Class sceneClass = Class.forName("net.vasile2k.fooball.game.scene." + this.nextSceneClassName);
                         this.currentScene = (Scene) sceneClass.newInstance();
                     } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
                         e.printStackTrace();
                     }
                 }
                 this.currentScene.onLoad(this.window);
-                this.nextScene = "";
+                this.nextSceneClassName = "";
+            }else if(this.nextScene != null){
+                this.currentScene.onUnload();
+                this.currentScene = nextScene;
+                this.currentScene.onLoad(this.window);
+                this.nextScene = null;
             }
 
             if(this.currentScene != this.menuScene){
@@ -110,7 +116,11 @@ public class Game {
     }
 
     public void requestSceneChange(String className){
-        this.nextScene = className;
+        this.nextSceneClassName = className;
+    }
+
+    public void requestSceneChange(Scene scene){
+        this.nextScene = scene;
     }
 
     public static Game getInstance(){

@@ -1,6 +1,9 @@
 package net.vasile2k.fooball.database;
 
+import net.vasile2k.fooball.game.scene.SceneGame;
+
 import javax.xml.crypto.Data;
+import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -12,6 +15,7 @@ import java.util.ArrayList;
 public class DatabaseManager {
 
     public static final String DATABASE_URL = "jdbc:sqlite:fooball.db";
+    public static final String LEVEL_FILE = "fooball.dat";
 
     static {
         try {
@@ -104,6 +108,39 @@ public class DatabaseManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void saveState(SceneGame sceneGame){
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(LEVEL_FILE);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+
+            objectOutputStream.writeObject(sceneGame);
+
+            objectOutputStream.close();
+            fileOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static SceneGame loadState(){
+        try {
+            FileInputStream fileInputStream = new FileInputStream(LEVEL_FILE);
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+
+            SceneGame sceneGame = (SceneGame) objectInputStream.readObject();
+
+            objectInputStream.close();
+            fileInputStream.close();
+
+            return sceneGame;
+
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

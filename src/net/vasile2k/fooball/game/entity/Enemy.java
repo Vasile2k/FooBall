@@ -15,6 +15,12 @@ import org.joml.Vector3f;
 
 public class Enemy extends Entity {
 
+    /**
+     * Required for serialization to match
+     * A unique magic number
+     */
+    private static final long serialVersionUID = 0x0A1E;
+
     private static Model model;
     private static Model shadow;
     private static Texture modelTexture;

@@ -25,34 +25,44 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
 
 public class Player extends Entity implements EventHandler {
 
-    private Model model;
-    private Model shadow;
-    private Texture playerTexture;
-    private Texture shadowTexture;
+    /**
+     * Required for serialization to match
+     * A unique magic number
+     */
+    private static final long serialVersionUID = 0xC0C0A;
 
-    private Set<Integer> keysPressed;
+    private transient Model model;
+    private transient Model shadow;
+    private transient Texture playerTexture;
+    private transient Texture shadowTexture;
 
-    private float x;
-    private float y;
+    private transient Set<Integer> keysPressed;
 
-    private float angle;
+    private float x = 0.0F;
+    private float y = 0.0F;
+
+    private float angle = 0.0F;
 
     private SceneGame scene;
-    protected float maxHealth;
-    protected float health;
+    private float maxHealth;
+    private float health;
 
     public Player(SceneGame sceneGame, float health){
+        this.build();
+        this.scene = sceneGame;
+        this.maxHealth = health;
+        this.health = health;
+    }
+    /**
+     * This shit loads all transient fields and is called after deserialization
+     * See {@link SceneGame#build()} for more details
+     */
+    public void build(){
         this.model = Model.ModelFactory.createNewModelFromFile("res/model/suzanne2.obj");
         this.shadow = Model.ModelFactory.createNewModelFromFile("res/model/shadow.obj");
         this.playerTexture = new Texture("res/texture/monkey_baked.png");
         this.shadowTexture = new Texture("res/texture/shadow.png");
         this.keysPressed = new HashSet<>();
-        this.x = 0.0F;
-        this.y = 0.0F;
-        this.angle = 0.0F;
-        this.scene = sceneGame;
-        this.maxHealth = health;
-        this.health = health;
     }
 
     @Override

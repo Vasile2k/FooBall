@@ -12,6 +12,7 @@ import net.vasile2k.fooball.window.EventHandler;
 import net.vasile2k.fooball.window.Window;
 import org.joml.Matrix4f;
 
+import java.io.*;
 import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -21,38 +22,52 @@ import static org.lwjgl.glfw.GLFW.*;
  *
  */
 
-public class SceneGame implements Scene {
+public class SceneGame implements Scene, Serializable {
 
-    private Window window;
+    /**
+     * Required for serialization to match
+     * A unique magic number
+     */
+    private static final long serialVersionUID = 0x69696969690A1ECAL;
 
-    private EventHandler eventHandler;
+    private transient Window window;
 
-    private Model arena;
+    private transient EventHandler eventHandler;
 
-    private Texture arenaTexture;
-    private Shader shader;
+    private transient Model arena;
 
-    private Matrix4f camera;
-    private Matrix4f arenaModelMatrix;
+    private transient Texture arenaTexture;
+    private transient Shader shader;
 
-    private boolean initialized = false;
+    private transient Matrix4f camera;
+    private transient Matrix4f arenaModelMatrix;
+
+    private transient boolean initialized = false;
 
     private Player player;
     private ArrayList<Enemy> enemies;
 
     private ArrayList<Bullet> bullets;
 
-    private boolean paused = false;
+    private transient boolean paused = false;
 
-    private boolean resumeActive = false;
-    private boolean saveActive = false;
-    private boolean exitActive = false;
+    private transient boolean resumeActive = false;
+    private transient boolean saveActive = false;
+    private transient boolean exitActive = false;
 
     private int level = 1;
 
     private int score = 0;
 
     public SceneGame(){
+        this.build();
+    }
+
+    /**
+     * Basically the same shit as constructor, just that you can call it. <br/>
+     * Needed when you deserialize the class
+     */
+    public void build(){
         this.eventHandler = new EventHandler() {
             @Override
             public void onKey(int key, int scancode, int action, int modifiers) {
@@ -81,7 +96,8 @@ public class SceneGame implements Scene {
                             if(resumeActive){
                                 paused = false;
                             }else if(saveActive){
-                                //TODO
+                                DatabaseManager.saveState(getThis());
+                                Game.getInstance().requestSceneChange("SceneMenu");
                             }else if(exitActive){
                                 Game.getInstance().requestSceneChange("SceneMenu");
                             }
@@ -128,6 +144,9 @@ public class SceneGame implements Scene {
                 }
             }
         };
+        if(this.player != null){
+            this.player.build();
+        }
     }
 
     @Override
@@ -142,10 +161,18 @@ public class SceneGame implements Scene {
 
             this.shader = new Shader("res/shader/colored");
 
-            this.player = new Player(this, 20.0F);
-            this.enemies = new ArrayList<>();
-            this.generateEnemies();
-            this.bullets = new ArrayList<>();
+            // These can be loaded somewhere else when this class is deserialized
+            // Check function saveState() for more details
+            if(this.player == null){
+                this.player = new Player(this, 20.0F);
+            }
+            if(this.enemies == null){
+                this.enemies = new ArrayList<>();
+                this.generateEnemies();
+            }
+            if(this.bullets == null){
+                this.bullets = new ArrayList<>();
+            }
 
             this.camera = new Matrix4f().setPerspective(1.0F, this.window.getAspectRatio(), 0.1F, 100F)
                     .lookAt(0.0F, 10.0F, 9.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F);
@@ -319,4 +346,13 @@ public class SceneGame implements Scene {
     public boolean isDone() {
         return false;
     }
+
+    /**
+     * Used to send this object to serializer
+     * @return this object
+     */
+    private SceneGame getThis(){
+        return this;
+    }
+
 }
