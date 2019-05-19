@@ -145,10 +145,12 @@ public class SceneMenu implements Scene {
         this.gameTexture.unbind();
     }
 
+    private double angle = 0.0F;
+
     @Override
     public void onUpdate(long deltaTime) {
-        double angle = (double)deltaTime/ 300;
-        gameModelMatrix.identity().translate(0.0F, 0.7F, -3.0F).rotate(0.1F * (float) Math.sin(angle), 0.0F, 1.0F, 0.0F);
+        angle += (double)deltaTime/ 500;
+        gameModelMatrix.identity().translate(0.0F, 0.7F, -3.0F).rotate(0.2F * (float) Math.sin(angle), 0.0F, 1.0F, 0.0F);
     }
 
     @Override
