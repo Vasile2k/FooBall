@@ -1,10 +1,7 @@
 package net.vasile2k.fooball.game.scene;
 
 import net.vasile2k.fooball.game.Game;
-import net.vasile2k.fooball.game.entity.CollisionHelper;
-import net.vasile2k.fooball.game.entity.Enemy;
-import net.vasile2k.fooball.game.entity.Entity;
-import net.vasile2k.fooball.game.entity.Player;
+import net.vasile2k.fooball.game.entity.*;
 import net.vasile2k.fooball.render.Model;
 import net.vasile2k.fooball.render.Renderer;
 import net.vasile2k.fooball.render.Shader;
@@ -41,6 +38,8 @@ public class SceneGame implements Scene {
 
     private Player player;
     private ArrayList<Enemy> enemies;
+
+    private ArrayList<Bullet> bullets;
 
     private boolean paused = false;
 
@@ -123,11 +122,12 @@ public class SceneGame implements Scene {
 
             this.arenaTexture = new Texture("res/texture/arena.png");
 
-            this.shader = new Shader("res/shader/red");
+            this.shader = new Shader("res/shader/colored");
 
             this.player = new Player(this);
             this.enemies = new ArrayList<>();
-            this.enemies.add(new Enemy());
+            this.generateEnemies();
+            this.bullets = new ArrayList<>();
 
             this.camera = new Matrix4f().setPerspective(1.0F, this.window.getAspectRatio(), 0.1F, 100F)
                     .lookAt(0.0F, 10.0F, 9.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F);
@@ -149,6 +149,26 @@ public class SceneGame implements Scene {
             for(Enemy e: this.enemies){
                 e.onUpdate(deltaTime);
             }
+            for(Bullet b: this.bullets){
+                b.onUpdate(deltaTime);
+                if(b.isFiredByPlayer()){
+                    for(Enemy e: this.enemies){
+                        float distToBullet = CollisionHelper.dist2(b.getX(), b.getY(), e.getX(), e.getY());
+                        if(distToBullet < 1.0F){
+                            e.damage();
+                            b.die();
+                        }
+                    }
+                }else{
+                    float distToPlayer = CollisionHelper.dist2(b.getX(), b.getY(), this.player.getX(), this.player.getY());
+                    if(distToPlayer < 1.0F){
+                        player.damage();
+                        b.die();
+                    }
+                }
+            }
+            this.enemies.removeIf(Enemy::isDead);
+            this.bullets.removeIf(Bullet::isDead);
         }
     }
 
@@ -195,6 +215,15 @@ public class SceneGame implements Scene {
         }
     }
 
+    public void addBullet(Bullet b){
+        this.bullets.add(b);
+    }
+
+    private void generateEnemies(){
+        this.enemies.add(new Enemy(this, 10, -6, 20.0F));
+//        this.enemies.add(new Enemy(this, (float)Math.random() * 10 - 5, (float)Math.random() * 10 - 5, 20.0F));
+    }
+
     @Override
     public void onRender() {
 
@@ -203,6 +232,7 @@ public class SceneGame implements Scene {
         }else{
             this.shader.bind();
 
+            this.shader.setUniform3f("objectColor", 1.0F, 1.0F, 1.0F);
             this.shader.setUniformMat4f("viewProjMatrix", this.camera);
 
             this.shader.setUniformMat4f("modelMatrix", this.arenaModelMatrix);
@@ -212,6 +242,9 @@ public class SceneGame implements Scene {
             this.player.render(this.shader);
             for(Enemy e: this.enemies){
                 e.render(this.shader);
+            }
+            for(Bullet b: this.bullets){
+                b.render(this.shader);
             }
         }
     }

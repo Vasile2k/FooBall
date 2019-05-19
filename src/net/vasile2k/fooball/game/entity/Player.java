@@ -81,6 +81,8 @@ public class Player extends Entity implements EventHandler {
     @Override
     public void render(Shader shader) {
 
+//        shader.setUniform3f("objectColor", 1.0F, 0.3F, 0.3F);
+
         shader.setUniformMat4f("modelMatrix", new Matrix4f().translate(this.x, 0, this.y).rotate(this.angle, 0.0F, 1.0F, 0.0F));
         this.playerTexture.bind(0);
         this.model.render();
@@ -98,6 +100,9 @@ public class Player extends Entity implements EventHandler {
                 case GLFW_KEY_A:
                 case GLFW_KEY_D:
                     keysPressed.add(key);
+                    break;
+                case GLFW_KEY_SPACE:
+                    this.fire();
                     break;
             }
         }else if(action == GLFW_RELEASE){
@@ -127,6 +132,10 @@ public class Player extends Entity implements EventHandler {
 
     }
 
+    public void damage(){
+
+    }
+
     public float getX() {
         return x;
     }
@@ -138,5 +147,9 @@ public class Player extends Entity implements EventHandler {
     @Override
     public boolean isDead() {
         return false;
+    }
+
+    private void fire(){
+        this.scene.addBullet(new Bullet(this.scene, this.x, this.y, new Vector3f(0.0F, 0.0F, 1.0F).rotateY(this.angle), true));
     }
 }

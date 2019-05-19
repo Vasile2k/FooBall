@@ -23,8 +23,8 @@ public class CollisionHelper {
         return a > b ? a : b;
     }
 
-    public static float abs(float x){
-        return x < 0 ? -x : x;
+    public static float abs(float num){
+        return num < 0 ? -num : num;
     }
 
     /**
