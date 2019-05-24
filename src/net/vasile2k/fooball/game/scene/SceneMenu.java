@@ -167,7 +167,7 @@ public class SceneMenu implements Scene {
         this.textShader.setUniformMat4f("viewProjMatrix", this.gameViewProjectionMatrix);
         this.textShader.setUniformMat4f("modelMatrix", this.gameModelMatrix);
 
-        this.textShader.setUniform1f("active", 0.0F);
+        this.textShader.setUniform1f("isActive", 0.0F);
 
         this.gameTexture.bind(0);
         this.gameModel.render();
@@ -176,17 +176,17 @@ public class SceneMenu implements Scene {
 
         this.menuButtonsTexture.bind(0);
 
-        this.textShader.setUniform1f("active", newGameActive ? 1.0F : 0.0F);
+        this.textShader.setUniform1f("isActive", newGameActive ? 1.0F : 0.0F);
         scaledMatrix = new Matrix4f(newModelMatrix).scale(1.1F, 1.1F, 1.1F);
         this.textShader.setUniformMat4f("modelMatrix", newGameActive ? scaledMatrix : this.newModelMatrix);
         this.newGameModel.render();
 
-        this.textShader.setUniform1f("active", continueActive ? 1.0F : 0.0F);
+        this.textShader.setUniform1f("isActive", continueActive ? 1.0F : 0.0F);
         scaledMatrix = new Matrix4f(continueModelMatrix).scale(1.1F, 1.1F, 1.1F);
         this.textShader.setUniformMat4f("modelMatrix", continueActive ? scaledMatrix : this.continueModelMatrix);
         this.continueModel.render();
 
-        this.textShader.setUniform1f("active", exitActive ? 1.0F : 0.0F);
+        this.textShader.setUniform1f("isActive", exitActive ? 1.0F : 0.0F);
         scaledMatrix = new Matrix4f(exitModelMatrix).scale(1.1F, 1.1F, 1.1F);
         this.textShader.setUniformMat4f("modelMatrix", exitActive ? scaledMatrix : this.exitModelMatrix);
         this.exitModel.render();
