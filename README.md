@@ -1,5 +1,7 @@
 # FooBall
 A game w/8 a ball... a foo ball
+![Menu](img/img1.png)
+![In-Game](img/img2.png)
 ## Building
 Dependencies:
 * [LWJGL](https://github.com/LWJGL/lwjgl3)
